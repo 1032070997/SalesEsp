@@ -30,7 +30,6 @@ namespace Sales.API.Controllers
             return Ok(category);
         }
 
-
         [HttpPost]
         public async Task<ActionResult> PostAsync(Category category)
         {
