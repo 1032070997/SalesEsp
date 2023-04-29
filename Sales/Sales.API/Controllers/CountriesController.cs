@@ -8,11 +8,11 @@ namespace Sales.API.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public CategoryController(DataContext context)
+        public CategoriesController(DataContext context)
         {
             _context = context;
         }
