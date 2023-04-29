@@ -5,7 +5,7 @@
 namespace Sales.API.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateCategory : Migration
+    public partial class AddCategory : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

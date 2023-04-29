@@ -41,7 +41,6 @@ namespace Sales.API.Data
             }
         }
 
-
         private async Task CheckCountriesAsync()
         {
             if (!_context.Countries.Any())

@@ -11,8 +11,8 @@ using Sales.API.Data;
 namespace Sales.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230429104208_Update")]
-    partial class Update
+    [Migration("20230429112638_AddCategory")]
+    partial class AddCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
