@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sales.API.Data;
 using Sales.Shared.Entities;
 
@@ -15,6 +14,13 @@ namespace Sales.API.Controllers
         public CategoriesController(DataContext context)
         {
             _context = context;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _context.Categories.ToListAsync());
         }
 
         [HttpGet("{id:int}")]
