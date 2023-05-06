@@ -10,10 +10,24 @@
 else
 {
     <h3>@state.Name</h3>
+
+    <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+        <div>
+            <a class="btn btn-primary" href="/cities/create/@StateId">Nueva Ciudad</a>
+            <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
+        </div>
+        <div class="mx-2">
+            <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar ciudad..." @bind-value="Filter" />
+        </div>
+        <div>
+            <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync">Filtrar</button>
+            <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync">Limpiar</button>
+        </div>
+    </div>
+
     <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPage" />
-
 
     <GenericList MyList="cities!">
         <Body>
@@ -49,9 +63,16 @@ else
     private int currentPage = 1;
     private int totalPages;
 
-
     [Parameter]
     public int StateId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = "";
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,17 +87,34 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-            string url1 = $"api/cities?id={StateId}&page={page}";
-            string url2 = $"api/cities/totalPages?id={StateId}";
-            var responseHppt = await repository.GetAsync<State>($"api/states/{StateId}");
-            var responseHppt2 = await repository.GetAsync<List<City>>(url1);
-            var responseHppt3 = await repository.GetAsync<int>(url2);
-            state = responseHppt.Response;
-            cities = responseHppt2.Response;
-            totalPages = responseHppt3.Response;
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        string url1 = string.Empty;
+        string url2 = string.Empty;
+
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url1 = $"api/cities?id={StateId}&page={page}";
+            url2 = $"api/cities/totalPages?id={StateId}";
+        }
+        else
+        {
+            url1 = $"api/cities?id={StateId}&page={page}&filter={Filter}";
+            url2 = $"api/cities/totalPages?id={StateId}&filter={Filter}";
+        }
+
+        var responseHppt = await repository.GetAsync<State>($"api/states/{StateId}");
+        var responseHppt2 = await repository.GetAsync<List<City>>(url1);
+        var responseHppt3 = await repository.GetAsync<int>(url2);
+        state = responseHppt.Response;
+        cities = responseHppt2.Response;
+        totalPages = responseHppt3.Response;
     }
 
-    private async Task DeleteAsync(int cityId)
+    private async Task DeleteAsync(int CityId)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -94,7 +132,7 @@ else
             return;
         }
 
-        var responseHttp = await repository.DeleteAsync($"/api/cities/{cityId}");
+        var responseHttp = await repository.DeleteAsync($"/api/cities/{CityId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
@@ -106,5 +144,18 @@ else
         }
 
         await LoadAsync();
+    }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+        await LoadAsync(page);
+        await SelectedPage(page);
     }
 }
