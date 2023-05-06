@@ -10,22 +10,22 @@
 else
 {
     <h3>@state.Name</h3>
-    <div class="mb-2">
-        <a class="btn btn-primary" href="/cities/create/@state.Id">Nueva Ciuadad</a>
-        <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
-    </div>
+    <Pagination CurrentPage="currentPage"
+            TotalPages="totalPages"
+            SelectedPage="SelectedPage" />
 
-    <GenericList MyList="state.Cities!.ToList()">
+
+    <GenericList MyList="cities!">
         <Body>
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Ciudad</th>
-                        <th></th>
+                        <th style="width:180px"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var city in state.Cities!.ToList())
+                    @foreach (var city in cities!)
                     {
                         <tr>
                             <td>
@@ -45,6 +45,10 @@ else
 
 @code {
     private State? state;
+    private List<City>? cities;
+    private int currentPage = 1;
+    private int totalPages;
+
 
     [Parameter]
     public int StateId { get; set; }
@@ -54,23 +58,22 @@ else
         await LoadAsync();
     }
 
-    private async Task LoadAsync()
+    private async Task SelectedPage(int page)
     {
-        var responseHttp = await repository.GetAsync<State>($"/api/states/{StateId}");
-        if (responseHttp.Error)
-        {
-            if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
-            {
-                navigationManager.NavigateTo("/countries");
-                return;
-            }
+        currentPage = page;
+        await LoadAsync(page);
+    }
 
-            var message = await responseHttp.GetErrorMessageAsync();
-            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-            return;
-        }
-
-        state = responseHttp.Response;
+    private async Task LoadAsync(int page = 1)
+    {
+            string url1 = $"api/cities?id={StateId}&page={page}";
+            string url2 = $"api/cities/totalPages?id={StateId}";
+            var responseHppt = await repository.GetAsync<State>($"api/states/{StateId}");
+            var responseHppt2 = await repository.GetAsync<List<City>>(url1);
+            var responseHppt3 = await repository.GetAsync<int>(url2);
+            state = responseHppt.Response;
+            cities = responseHppt2.Response;
+            totalPages = responseHppt3.Response;
     }
 
     private async Task DeleteAsync(int cityId)
